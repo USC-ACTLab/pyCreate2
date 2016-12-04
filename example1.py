@@ -1,6 +1,6 @@
 """
-Sample Code for Lab1
-Use "run.py [--sim] lab1" to execute
+Example to move robot forward for 10 seconds
+Use "python3 run.py [--sim] example1" to execute
 """
 
 
