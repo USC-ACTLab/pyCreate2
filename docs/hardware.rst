@@ -36,3 +36,130 @@ Wiring
 ------
 
 .. image:: wiring.png
+
+Software
+--------
+
+Basic
+^^^^^
+
+* Download http://odroid.in/ubuntu_16.04lts/ubuntu-16.04-mate-odroid-c1-20160727.img.xz
+
+* Extract::
+
+    unxz ubuntu-16.04-mate-odroid-c1-20160727.img.xz
+
+* Verify MD5::
+
+    md5sum ubuntu-16.04-mate-odroid-c1-20160727.img
+    f5dfee4a8ea919dd8afc4384431574e5  ubuntu-16.04-mate-odroid-c1-20160727.img
+
+* Copy to SD-Card::
+
+    sudo dd if=ubuntu-16.04-mate-odroid-c1-20160727.img of=</dev/path/of/card> bs=1M conv=fsync
+    sync
+
+Network
+^^^^^^^
+
+* Add `/etc/wpa_supplicant/wpa_supplicant.conf` with following content::
+
+    network={
+      ssid="<SSID>"
+      psk="<password>"
+      id_str="wifi"
+    }
+
+* Update `/etc/network/interfaces`::
+
+    # interfaces(5) file used by ifup(8) and ifdown(8)
+    # Include files from /etc/network/interfaces.d:
+    source-directory /etc/network/interfaces.d
+
+    auto lo
+    iface lo inet loopback
+
+    auto wlan0
+    # allow-hotplug wlan0
+    iface wlan0 inet manual
+    wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+    iface wifi inet dhcp
+    iface default inet dhcp
+
+* Disable persistent network (so that SD-card can be used with any WiFi dongle)::
+
+    sudo ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
+
+PWM
+^^^
+
+* Update `/etc/modules`::
+
+    # /etc/modules: kernel modules to load at boot time.
+    #
+    # This file contains the names of kernel modules that should be loaded
+    # at boot time, one per line. Lines beginning with "#" are ignored.
+    # Parameters can be specified after the module name.
+
+    # ODROID HW PWM support (see http://odroid.com/dokuwiki/doku.php?id=en:c1_hardware_pwm)
+    pwm-meson
+    pwm-ctrl
+
+
+GPIO Support
+^^^^^^^^^^^^
+
+* Add udev-rule: `/etc/udev/rules.d/90-gpio.rules`::
+
+    SUBSYSTEM=="gpio", KERNEL=="gpiochip*", ACTION=="add", PROGRAM="/bin/sh -c 'chown root:gpio /sys/class/gpio/export /sys/class/gpio/unexport ; chmod 222 /sys/class/gpio/export /sys/class/gpio/unexport'"
+    SUBSYSTEM=="gpio", KERNEL=="gpio*", ACTION=="add", PROGRAM="/bin/sh -c 'chown root:gpio /sys%p/active_low /sys%p/direction /sys%p/edge /sys%p/value ; chmod 660 /sys%p/active_low /sys%p/direction /sys%p/edge /sys%p/value'"
+
+* Create GPIO group::
+
+    sudo groupadd gpio
+
+* Add user to group::
+
+    sudo adduser odroid gpio
+
+* Reboot
+
+
+Additional Software
+^^^^^^^^^^^^^^^^^^^
+
+* Update the system::
+
+    sudo apt update
+    sudo apt upgrade
+
+* Install additional packages::
+
+    sudo apt install python3 python3-serial python3-scipy python3-numpy python3-matplotlib
+
+Add User
+^^^^^^^^
+
+* Add user and assign groups::
+
+    sudo adduser csci445
+    sudo adduser csci445 gpio
+    sudo adduser csci445 dialout
+
+Debugging
+---------
+
+You can use the USB UART Kit for debugging, see http://odroid.com/dokuwiki/doku.php?id=en:usb_uart_kit for more details.
+This will allow you to gain access to a shell using UART.
+
+* On you host PC, add `/etc/udev/rules.d/99-odroiduart.rules` with the following content::
+
+     SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", MODE="0664", GROUP="plugdev"
+
+  Make sure that your user is member of the `plugdev` group.
+
+* To connect, use::
+
+    picocom --baud 115200 /dev/ttyUSB0
+
+  You can end the session by pressing Ctrl+A followed by Ctrl+X.
