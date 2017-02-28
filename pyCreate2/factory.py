@@ -69,6 +69,10 @@ class FactoryCreate:
         from visualization import VirtualCreate
         return VirtualCreate(self._clientID)
 
+    def create_tracker(self, tag_id):
+        from .robot import Tracker
+        return Tracker(tag_id)
+
 
 class FactorySimulation:
     """Class to create objects which are simulated.
@@ -149,3 +153,7 @@ class FactorySimulation:
         """
         from .simulation import KukaLBR4PlusVrep
         return KukaLBR4PlusVrep(self._clientID)
+
+    def create_tracker(self, tag_id):
+        from .simulation import Tracker
+        return Tracker(self._clientID, tag_id, self.create_time_helper())
