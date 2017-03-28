@@ -17,6 +17,13 @@ class Tracker:
     self.yaw_stddev = yaw_stddev
     self.queried_time = time.time()
 
+    # discard the first position reading that gives all zeroes
+    _ = vrep.simxGetObjectPosition(
+      self._clientID,
+      self._create,
+      -1,
+      vrep.simx_opmode_oneshot)
+
   def query(self):
     t = self.time.time()
     if t > self.queried_time + 1.0 / self.rate:
