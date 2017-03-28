@@ -17,17 +17,9 @@ class Tracker:
     self.yaw_stddev = yaw_stddev
     self.queried_time = time.time()
 
-    # discard the first position reading that gives all zeroes
-    _ = vrep.simxGetObjectPosition(
-      self._clientID,
-      self._create,
-      -1,
-      vrep.simx_opmode_oneshot)
-
   def query(self):
     t = self.time.time()
     if t > self.queried_time + 1.0 / self.rate:
-      self.queried_time = t
       # if np.random.random() < 0.05: # 5% chance of not detecting the tag
       #   return None
       rc, xyz = vrep.simxGetObjectPosition(
@@ -35,6 +27,9 @@ class Tracker:
         self._create,
         -1,
         vrep.simx_opmode_oneshot)
+
+      if rc != 0:
+        return None
 
       x, y, z = xyz
       x += np.random.normal(0, self.x_stddev)
@@ -45,9 +40,14 @@ class Tracker:
         self._create,
         -1,
         vrep.simx_opmode_oneshot)
+      
+      if rc != 0:
+        return None
 
       roll, pitch, yaw = rpy
       yaw = math.fmod(yaw + np.random.normal(0, self.yaw_stddev), 2 * math.pi)
+
+      self.queried_time = t
 
       return {
         'id': self.tag_id,
