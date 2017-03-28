@@ -3,7 +3,8 @@ import math
 import numpy as np
 
 class Tracker:
-  def __init__(self, client_id, tag_id, time, port = 5555, rate = 10):
+  def __init__(self, client_id, tag_id, time, port=5555, rate=10,
+    x_stddev=0.01, y_stddev=0.01, yaw_stddev=0.01):
     self._clientID = client_id
     rc, self._create = vrep.simxGetObjectHandle(self._clientID, "create",
       vrep.simx_opmode_oneshot_wait)
@@ -11,14 +12,17 @@ class Tracker:
     self.time = time
     self.port = port
     self.rate = rate
+    self.x_stddev = x_stddev
+    self.y_stddev = y_stddev
+    self.yaw_stddev = yaw_stddev
     self.queried_time = time.time()
 
   def query(self):
     t = self.time.time()
     if t > self.queried_time + 1.0 / self.rate:
       self.queried_time = t
-      if np.random.random() < 0.05: # 5% chance of not detecting the tag
-        return None
+      # if np.random.random() < 0.05: # 5% chance of not detecting the tag
+      #   return None
       rc, xyz = vrep.simxGetObjectPosition(
         self._clientID,
         self._create,
@@ -26,8 +30,8 @@ class Tracker:
         vrep.simx_opmode_oneshot)
 
       x, y, z = xyz
-      x += np.random.normal(0, 0.01)
-      y += np.random.normal(0, 0.01)
+      x += np.random.normal(0, self.x_stddev)
+      y += np.random.normal(0, self.yaw_stddev)
 
       rc, rpy = vrep.simxGetObjectOrientation(
         self._clientID,
@@ -36,7 +40,7 @@ class Tracker:
         vrep.simx_opmode_oneshot)
 
       roll, pitch, yaw = rpy
-      roll = math.fmod(roll + np.random.normal(0, math.radians(0.01)), 2 * math.pi)
+      yaw = math.fmod(yaw + np.random.normal(0, self.yaw_stddev), 2 * math.pi)
 
       return {
         'id': self.tag_id,
