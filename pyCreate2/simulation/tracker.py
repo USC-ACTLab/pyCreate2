@@ -31,7 +31,7 @@ class Tracker:
 
       x, y, z = xyz
       x += np.random.normal(0, self.x_stddev)
-      y += np.random.normal(0, self.yaw_stddev)
+      y += np.random.normal(0, self.y_stddev)
 
       rc, rpy = vrep.simxGetObjectOrientation(
         self._clientID,
