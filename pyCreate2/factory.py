@@ -69,7 +69,7 @@ class FactoryCreate:
         from visualization import VirtualCreate
         return VirtualCreate(self._clientID)
 
-    def create_tracker(self, tag_id):
+    def create_tracker(self, tag_id, sd_x=0, sd_y=0, sd_theta=0):
         from .robot import Tracker
         return Tracker(tag_id)
 
@@ -154,6 +154,7 @@ class FactorySimulation:
         from .simulation import KukaLBR4PlusVrep
         return KukaLBR4PlusVrep(self._clientID)
 
-    def create_tracker(self, tag_id):
+    def create_tracker(self, tag_id, sd_x=0.01, sd_y=0.01, sd_theta=0.01):
         from .simulation import Tracker
-        return Tracker(self._clientID, tag_id, self.create_time_helper())
+        return Tracker(self._clientID, tag_id, self.create_time_helper(),
+            sd_x=sd_x, sd_y=sd_y, sd_theta=sd_theta)
