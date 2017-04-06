@@ -14,6 +14,6 @@ class PenHolder:
         """Go to specified target height.
 
         Args:
-            height (float): TIODODODODODODO -90 - 90 degrees. 0 means facing forward. Negative numbers turn to the left.
+            height (float): target height in cm
         """
         self.servo.go_to(height * 20)

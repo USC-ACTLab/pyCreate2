@@ -1,5 +1,5 @@
 """
-Module to control a virtual Servo.
+Module to control a pen holder (prismatic joint)
 """
 
 from ..vrep import vrep as vrep
@@ -8,8 +8,8 @@ import math
 
 class PenHolder:
     """
-    Class to control a virtual servo in V-REP.
-    The servo is modeled as joint, using an integrated position controller in V-REP.
+    Class to control a virtual pen holder in V-REP.
+    The pen holder is modeled as prismatic joint and the position is set directly.
     """
     def __init__(self, client_id):
         """Constructor.
@@ -26,7 +26,7 @@ class PenHolder:
         """Go to specified target height.
 
         Args:
-            height (float): TIODODODODODODO -90 - 90 degrees. 0 means facing forward. Negative numbers turn to the left.
+            height (float): target height in cm
         """
         vrep.simxSetJointPosition(self._clientID, self._joint, height,
                                         vrep.simx_opmode_oneshot_wait)
