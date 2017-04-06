@@ -73,6 +73,15 @@ class FactoryCreate:
         from .robot import Tracker
         return Tracker(tag_id)
 
+    def create_pen_holder(self):
+        """Instantiates a new pen holder (only a single one is supported!)
+
+        Returns:
+            (robot.PenHolder) instance of robot.PenHolder
+        """
+        from .robot import PenHolder
+        return PenHolder(0)
+
 
 class FactorySimulation:
     """Class to create objects which are simulated.
@@ -158,3 +167,12 @@ class FactorySimulation:
         from .simulation import Tracker
         return Tracker(self._clientID, tag_id, self.create_time_helper(),
             sd_x=sd_x, sd_y=sd_y, sd_theta=sd_theta)
+
+    def create_pen_holder(self):
+        """Instantiates a new pen holder (only a single one is supported!)
+
+        Returns:
+            (simulation.PenHolder) instance of simulation.PenHolder
+        """
+        from .simulation import PenHolder
+        return PenHolder(self._clientID)
