@@ -4,7 +4,7 @@ import numpy as np
 
 class Tracker:
   def __init__(self, client_id, tag_id, time, port=5555, rate=10,
-    x_stddev=0.01, y_stddev=0.01, yaw_stddev=0.01):
+    sd_x=0.01, sd_y=0.01, sd_theta=0.01):
     self._clientID = client_id
     rc, self._create = vrep.simxGetObjectHandle(self._clientID, "create",
       vrep.simx_opmode_oneshot_wait)
@@ -12,9 +12,9 @@ class Tracker:
     self.time = time
     self.port = port
     self.rate = rate
-    self.x_stddev = x_stddev
-    self.y_stddev = y_stddev
-    self.yaw_stddev = yaw_stddev
+    self.sd_x = sd_x
+    self.sd_y = sd_y
+    self.sd_theta = sd_theta
     self.queried_time = time.time()
 
   def query(self):
@@ -32,8 +32,8 @@ class Tracker:
         return None
 
       x, y, z = xyz
-      x += np.random.normal(0, self.x_stddev)
-      y += np.random.normal(0, self.y_stddev)
+      x += np.random.normal(0, self.sd_x)
+      y += np.random.normal(0, self.sd_y)
 
       rc, rpy = vrep.simxGetObjectOrientation(
         self._clientID,
@@ -45,7 +45,7 @@ class Tracker:
         return None
 
       roll, pitch, yaw = rpy
-      yaw = math.fmod(yaw + np.random.normal(0, self.yaw_stddev), 2 * math.pi)
+      yaw = math.fmod(yaw + np.random.normal(0, self.sd_theta), 2 * math.pi)
 
       self.queried_time = t
 
